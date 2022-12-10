@@ -1,43 +1,48 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import TodoList from './Todo/TodoList'
 import Context from './context'
 import AddTodo from './Todo/AddTodo'
 
 
 function App() {
-  const [todos, setTodos] = React.useState([
-    {id: 1, completed: false, title: 'Купить хлеб'},
-    {id: 2, completed: true, title: 'Купить масло'},
-    {id: 3, completed: false, title: 'Купить молоко'}
-  ])
+  const [todos, setTodos] = React.useState([])
 
-function toggleTodo(id) {
-  setTodos(
-    todos.map(todo => {
-      if (todo.id === id) {
-        todo.completed = !todo.completed
-      } 
-      return todo
-    })
-  )
-}
+  useEffect(() => {//работа с сервером
+    fetch('https://jsonplaceholder.typicode.com/todos?_limit=5') //обращаемся к фетч, возвр список todos. ?_limit=5 квери параметр, чтобы загрузилось 5 элементов
+      .then(response => response.json())
+      .then(todos => {//получаем массив тудус 
+        setTodos(todos)//чтобы изменить стейт, обращаемся к функции setTodos и передаем массив todos 
+      })
+  }, [])
 
-/*Удаляем строки*/
-function removeTodo(id) {
-  setTodos(todos.filter(todo => todo.id !== id))
-}
 
-function addTodo(title) {
-  setTodos/*чтобы изменить стейт*/(
-    todos.concat([/*метод concat, чтобы добавить нужный эл-нет*/
-      { 
-        title,
-        id: Date.now(),
-        completed:false
-      }
-    ])
-  )
-}
+  function toggleTodo(id) {
+    setTodos(
+      todos.map(todo => {
+        if (todo.id === id) {
+          todo.completed = !todo.completed
+        } 
+        return todo
+      })
+    )
+  }
+
+  //Удаляем строки
+  function removeTodo(id) {
+    setTodos(todos.filter(todo => todo.id !== id))
+  }
+
+  function addTodo(title) {
+    setTodos/*чтобы изменить стейт*/(
+      todos.concat([//метод concat, чтобы добавить нужный эл-нет
+        { 
+          title,
+          id: Date.now(),
+          completed:false
+        }
+      ])
+    )
+  }
 
   return (
     <Context.Provider value={{removeTodo: removeTodo}}>
